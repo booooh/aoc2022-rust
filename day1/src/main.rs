@@ -23,27 +23,30 @@ enum ParseStatus {
     ItemIncomplete,
 }
 
-trait Parsable<P: Default> {
+trait Parsable<P> {
     fn parse(lines: io::Lines<io::BufReader<File>>) -> Vec<P> {
         let mut items = Vec::new();
-        let mut curr_item = P::default();
+        let mut curr_item = None;
         for line in lines {
             if let Ok(line_val) = line {
                 let parse_res = Self::parse_line(&line_val, &mut curr_item);
                 curr_item = match parse_res {
                     ParseStatus::ItemComplete => {
-                        items.push(curr_item);
-                        P::default()
+                        items.push(curr_item.unwrap());
+                        None
                     }
                     ParseStatus::ItemIncomplete => curr_item,
                 }
             }
         }
         // add the last item
-        items.push(curr_item);
+        if let Some(item) = curr_item {
+            items.push(item);
+        }
+
         return items;
     }
-    fn parse_line(line: &str, curr_item: &mut P) -> ParseStatus;
+    fn parse_line(line: &str, curr_item: &mut Option<P>) -> ParseStatus;
     fn parse_file<PathType>(filename: PathType) -> Vec<P>
     where
         PathType: AsRef<Path>,
@@ -54,11 +57,17 @@ trait Parsable<P: Default> {
 }
 
 impl Parsable<Elf> for Elf {
-    fn parse_line(line: &str, curr_item: &mut Elf) -> ParseStatus {
+    fn parse_line(line: &str, curr_item: &mut Option<Elf>) -> ParseStatus {
         if line.is_empty() {
             return ParseStatus::ItemComplete;
         }
-        curr_item.add_calories(line.parse::<i64>().unwrap());
+        if curr_item.is_none() {
+            curr_item.replace(Elf::default());
+        }
+        curr_item
+            .as_mut()
+            .unwrap()
+            .add_calories(line.parse::<i64>().unwrap());
         return ParseStatus::ItemIncomplete;
     }
 }
