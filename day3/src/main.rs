@@ -2,19 +2,6 @@ use std::collections::HashSet;
 
 use common::{Parsable, ParseStatus};
 
-// #[derive(Debug, PartialEq, Clone, Copy)]
-// enum Choice {
-//     Rock,
-//     Paper,
-//     Scissors,
-// }
-
-// enum RoundResult {
-//     Win,
-//     Lose,
-//     Draw,
-// }
-
 #[derive(Debug)]
 struct Rucksack {
     compartments: [String; 2],
