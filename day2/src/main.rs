@@ -1,6 +1,6 @@
 use common::{Parsable, ParseStatus};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 enum Choice {
     Rock,
     Paper,
@@ -35,6 +35,22 @@ impl Choice {
 
         panic!("This is not a valid value");
     }
+
+    fn loses_against(&self) -> Self {
+        match self {
+            Choice::Rock => Choice::Paper,
+            Choice::Paper => Choice::Scissors,
+            Choice::Scissors => Choice::Rock,
+        }
+    }
+
+    fn wins_against(&self) -> Self {
+        match self {
+            Choice::Rock => Choice::Scissors,
+            Choice::Paper => Choice::Rock,
+            Choice::Scissors => Choice::Paper,
+        }
+    }
 }
 
 impl Round {
@@ -51,34 +67,48 @@ impl Round {
     }
 
     fn result(&self) -> RoundResult {
-        match self.choice {
-            Choice::Rock => match self.opponent {
-                Choice::Rock => RoundResult::Draw,
-                Choice::Paper => RoundResult::Lose,
-                Choice::Scissors => RoundResult::Win,
-            },
-            Choice::Paper => match self.opponent {
-                Choice::Rock => RoundResult::Win,
-                Choice::Paper => RoundResult::Draw,
-                Choice::Scissors => RoundResult::Lose,
-            },
-            Choice::Scissors => match self.opponent {
-                Choice::Rock => RoundResult::Lose,
-                Choice::Paper => RoundResult::Win,
-                Choice::Scissors => RoundResult::Draw,
-            },
+        if self.opponent == self.choice {
+            return RoundResult::Draw;
         }
+
+        if self.choice.wins_against() == self.opponent {
+            return RoundResult::Win;
+        }
+
+        return RoundResult::Lose;
+    }
+
+    fn desired_choice(opponent: &Choice, desired_result: &str) -> Choice {
+        let winninng_choice = opponent.loses_against();
+        let losing_choice = opponent.wins_against();
+        if desired_result == "X" {
+            return losing_choice;
+        }
+
+        if desired_result == "Z" {
+            return winninng_choice;
+        }
+        return opponent.to_owned();
     }
 }
 
 impl Parsable for Round {
     fn parse_line(line: &str, curr_item: &mut Option<Round>) -> ParseStatus {
         let parts: Vec<_> = line.split(" ").collect();
-        curr_item.replace(Round {
-            choice: Choice::from_string(parts[1]),
-            opponent: Choice::from_string(parts[0]),
-        });
-        return ParseStatus::ItemComplete;
+        let opponent = Choice::from_string(parts[0]);
+        if (false) {
+            curr_item.replace(Round {
+                choice: Choice::from_string(parts[1]),
+                opponent,
+            });
+            return ParseStatus::ItemComplete;
+        } else {
+            curr_item.replace(Round {
+                choice: Self::desired_choice(&opponent, parts[1]),
+                opponent,
+            });
+            return ParseStatus::ItemComplete;
+        }
     }
 }
 
