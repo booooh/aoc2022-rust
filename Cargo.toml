@@ -2,6 +2,7 @@
 
 [workspace]
 members = [
+    "common",
     "day1",
     "day2"
 ]
