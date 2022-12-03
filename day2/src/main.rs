@@ -80,8 +80,8 @@ enum ParseStatus {
     ItemIncomplete,
 }
 
-trait Parsable<P> {
-    fn parse(lines: io::Lines<io::BufReader<File>>) -> Vec<P> {
+trait Parsable: Sized {
+    fn parse(lines: io::Lines<io::BufReader<File>>) -> Vec<Self> {
         let mut items = Vec::new();
         let mut curr_item = None;
         for line in lines {
@@ -103,8 +103,8 @@ trait Parsable<P> {
 
         return items;
     }
-    fn parse_line(line: &str, curr_item: &mut Option<P>) -> ParseStatus;
-    fn parse_file<PathType>(filename: PathType) -> Vec<P>
+    fn parse_line(line: &str, curr_item: &mut Option<Self>) -> ParseStatus;
+    fn parse_file<PathType>(filename: PathType) -> Vec<Self>
     where
         PathType: AsRef<Path>,
     {
@@ -113,7 +113,7 @@ trait Parsable<P> {
     }
 }
 
-impl Parsable<Round> for Round {
+impl Parsable for Round {
     fn parse_line(line: &str, curr_item: &mut Option<Round>) -> ParseStatus {
         let parts: Vec<_> = line.split(" ").collect();
         curr_item.replace(Round {
@@ -127,11 +127,6 @@ impl Parsable<Round> for Round {
 fn main() {
     let mut rounds = Round::parse_file("input/day2.txt");
     println!("len rounds {:}", rounds.len());
-    println!("{:?}", rounds);
-    println!(
-        "{:?}",
-        rounds.iter().map(|round| round.score()).collect::<Vec<_>>()
-    );
     println!(
         "{:?}",
         rounds.iter().map(|round| round.score()).sum::<i64>()
