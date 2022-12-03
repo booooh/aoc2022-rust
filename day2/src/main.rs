@@ -97,12 +97,14 @@ impl Parsable for Round {
         let parts: Vec<_> = line.split(" ").collect();
         let opponent = Choice::from_string(parts[0]);
         if (false) {
+            // part1
             curr_item.replace(Round {
                 choice: Choice::from_string(parts[1]),
                 opponent,
             });
             return ParseStatus::ItemComplete;
         } else {
+            // part2
             curr_item.replace(Round {
                 choice: Self::desired_choice(&opponent, parts[1]),
                 opponent,
