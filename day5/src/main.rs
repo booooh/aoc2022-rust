@@ -56,14 +56,23 @@ impl FromStr for Instruction {
 }
 
 impl CargoLoad {
-    fn apply_instruction(&mut self, instruction: &Instruction) {
+    fn apply_instruction(&mut self, instruction: &Instruction, part2: bool) {
         let stacks = &mut self.stacks;
-        for _ in 0..instruction.count {
-            let source_stack = stacks.get_mut(instruction.source_stack).unwrap();
-            let c = source_stack.crates.pop_back().unwrap();
-            let dest_stack = stacks.get_mut(instruction.dest_stack).unwrap();
-            dest_stack.crates.push_back(c);
+
+        let source_stack = stacks.get_mut(instruction.source_stack).unwrap();
+        let start_index = source_stack.crates.len() - instruction.count;
+        let mut items = source_stack
+            .crates
+            .drain(start_index..)
+            .collect::<VecDeque<_>>();
+        if !part2 {
+            items = items.into_iter().rev().collect::<VecDeque<char>>();
         }
+        stacks
+            .get_mut(instruction.dest_stack)
+            .unwrap()
+            .crates
+            .append(&mut items);
     }
 }
 
@@ -84,7 +93,7 @@ fn main() {
     let mut cargo_load: CargoLoad = cargo.parse().unwrap();
     println!("{:?}", cargo_load);
     for inst in instructions {
-        cargo_load.apply_instruction(&inst);
+        cargo_load.apply_instruction(&inst, true);
     }
     println!(
         "{:?}",
