@@ -7,7 +7,7 @@ fn main() {
         let found = found_start.find(c);
         let cur_len = found_start.len();
         match (found, cur_len) {
-            (None, 3) => {
+            (None, 13) => {
                 found_start = found_start + &c.to_string();
                 println!("found: {} {}", found_start, start_idx + 1);
                 exit(0);
