@@ -99,7 +99,7 @@ impl FromStr for Arena<String, DirListing> {
 }
 
 #[derive(Debug)]
-struct TreeNode<ID, T>
+pub struct TreeNode<ID, T>
 where
     ID: Hash + Eq + PartialEq + Clone,
 {
@@ -113,7 +113,7 @@ impl<ID, T> TreeNode<ID, T>
 where
     ID: Hash + Eq + PartialEq + Clone,
 {
-    fn new(id: ID, data: T, parent: Option<ID>) -> Self {
+    pub fn new(id: ID, data: T, parent: Option<ID>) -> Self {
         Self {
             id,
             data,
@@ -122,11 +122,11 @@ where
         }
     }
 
-    fn add_child(&mut self, child_id: ID) {
+    pub fn add_child(&mut self, child_id: ID) {
         self.children.push(child_id);
     }
 
-    fn remove_child(&mut self, child_id: ID) {
+    pub fn remove_child(&mut self, child_id: ID) {
         self.children
             .remove(self.children.iter().position(|x| x == &child_id).unwrap());
     }
@@ -155,14 +155,14 @@ impl Arena<String, DirListing> {
     }
 }
 
-struct Arena<ID, T>
+pub struct Arena<ID, T>
 where
     ID: Hash + Eq + PartialEq + Clone,
 {
     nodes: HashMap<ID, TreeNode<ID, T>>,
 }
 
-struct DfsIterator<'a, ID, T>
+pub struct DfsIterator<'a, ID, T>
 where
     ID: Hash + Eq + PartialEq + Clone,
 {
@@ -194,7 +194,7 @@ impl<ID, T> Arena<ID, T>
 where
     ID: Hash + Eq + PartialEq + Clone + std::fmt::Debug,
 {
-    fn add_node(&mut self, key: ID, data: T, parent_key: Option<ID>) -> &TreeNode<ID, T> {
+    pub fn add_node(&mut self, key: ID, data: T, parent_key: Option<ID>) -> &TreeNode<ID, T> {
         // add the element to the arena
         self.nodes.insert(
             key.clone(),
@@ -210,7 +210,7 @@ where
         return self.nodes.get(&key).unwrap();
     }
 
-    fn remove_node(&mut self, key: ID) -> Option<TreeNode<ID, T>> {
+    pub fn remove_node(&mut self, key: ID) -> Option<TreeNode<ID, T>> {
         // if the node to remove has a parent, remove this node from the parent's children
         if let Some(parent_id) = self.nodes.get(&key).unwrap().parent.clone() {
             self.nodes
@@ -223,34 +223,27 @@ where
         self.nodes.remove(&key)
     }
 
-    fn get(&self, key: &ID) -> Option<&TreeNode<ID, T>> {
+    pub fn get(&self, key: &ID) -> Option<&TreeNode<ID, T>> {
         return self.nodes.get(key);
     }
 
-    fn get_mut(&mut self, key: &ID) -> Option<&mut TreeNode<ID, T>> {
+    pub fn get_mut(&mut self, key: &ID) -> Option<&mut TreeNode<ID, T>> {
         return self.nodes.get_mut(key);
     }
 
-    fn new() -> Self {
+    pub fn new() -> Self {
         return Self {
             nodes: HashMap::new(),
         };
     }
 
-    fn dfs(&self, start_node: ID) -> DfsIterator<ID, T> {
+    pub fn dfs(&self, start_node: ID) -> DfsIterator<ID, T> {
         //doing a pre-order walk of the tree, so we yield each node as we visit it, starting with the start_node
         DfsIterator {
             arena: self,
             stack: vec![start_node].into(),
         }
     }
-}
-
-#[derive(Debug)]
-struct Instruction {
-    source_stack: usize,
-    dest_stack: usize,
-    count: usize,
 }
 
 fn main() {
@@ -270,7 +263,7 @@ fn main() {
         println!("{}", node_key);
     }
     let contents = fs::read_to_string("input/day7.txt").unwrap();
-    let mut tree_new: Arena<String, DirListing> = contents.parse().unwrap();
+    let tree_new: Arena<String, DirListing> = contents.parse().unwrap();
     for node_key in tree_new.dfs("/".into()) {
         println!("{}", node_key);
     }

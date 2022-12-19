@@ -6,8 +6,6 @@ struct CleanupPair {
     range_elf2: (i64, i64),
 }
 
-struct CleanupDuties {}
-
 impl Parsable for CleanupPair {
     fn parse_line(line: &str, curr_item: &mut Option<CleanupPair>) -> ParseStatus {
         let indices = line
@@ -48,7 +46,7 @@ impl CleanupPair {
 }
 
 fn main() {
-    let mut pairs = CleanupPair::parse_file("input/day4.txt");
+    let pairs = CleanupPair::parse_file("input/day4.txt");
     println!("len cleanup pairs {:}", pairs.len());
     println!(
         "groups fully contain each other {:?}",

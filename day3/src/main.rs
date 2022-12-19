@@ -46,7 +46,7 @@ impl Rucksack {
 }
 
 fn main() {
-    let mut rucksacks = Rucksack::parse_file("input/day3.txt");
+    let rucksacks = Rucksack::parse_file("input/day3.txt");
     println!("len rucksacks {:}", rucksacks.len());
     println!(
         "rucksacks priority {:?}",

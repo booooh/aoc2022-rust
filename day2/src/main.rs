@@ -96,7 +96,7 @@ impl Parsable for Round {
     fn parse_line(line: &str, curr_item: &mut Option<Round>) -> ParseStatus {
         let parts: Vec<_> = line.split(" ").collect();
         let opponent = Choice::from_string(parts[0]);
-        if (false) {
+        if false {
             // part1
             curr_item.replace(Round {
                 choice: Choice::from_string(parts[1]),
@@ -115,7 +115,7 @@ impl Parsable for Round {
 }
 
 fn main() {
-    let mut rounds = Round::parse_file("input/day2.txt");
+    let rounds = Round::parse_file("input/day2.txt");
     println!("len rounds {:}", rounds.len());
     println!(
         "{:?}",

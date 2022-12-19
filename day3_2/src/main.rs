@@ -53,7 +53,7 @@ impl Group {
 }
 
 fn main() {
-    let mut groups = Group::parse_file("input/day3.txt");
+    let groups = Group::parse_file("input/day3.txt");
     println!("len groups {:}", groups.len());
     println!(
         "groups priority {:?}",

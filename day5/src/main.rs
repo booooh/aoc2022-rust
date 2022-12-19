@@ -32,7 +32,7 @@ impl FromStr for CargoLoad {
                 .chunks(4)
                 .map(|chunk| chunk[1] as char)
                 .enumerate()
-                .filter(|(idx, item)| item != &' ');
+                .filter(|(_, item)| item != &' ');
             for (idx, contents) in chunks {
                 stacks[idx].crates.push_back(contents)
             }
