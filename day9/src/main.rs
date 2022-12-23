@@ -1,4 +1,4 @@
-use std::{collections::HashSet, convert::Infallible, fs, str::FromStr, string::ParseError};
+use std::{collections::HashSet, fs, str::FromStr, string::ParseError};
 
 #[derive(Debug, Clone, Copy)]
 enum Direction {
@@ -17,19 +17,19 @@ struct Motion {
 struct Index(isize, isize);
 
 struct Grid {
-    curr_head_location: Index,
-    curr_tail_location: Index,
+    curr_knot_locations: Vec<Index>,
     visited_tail_locaions: HashSet<Index>,
 }
 
 impl Grid {
     fn new() -> Self {
-        let mut set = HashSet::new();
-        set.insert(Index(0, 0));
+        let mut visited_tail_locaions = HashSet::new();
+        visited_tail_locaions.insert(Index(0, 0));
+        let curr_knot_locations = vec![Index(0, 0); 10];
+
         return Self {
-            curr_head_location: Index(0, 0),
-            curr_tail_location: Index(0, 0),
-            visited_tail_locaions: set,
+            curr_knot_locations,
+            visited_tail_locaions,
         };
     }
 
@@ -40,29 +40,50 @@ impl Grid {
     }
 
     fn move_head(&mut self, direction: &Direction) {
-        self.curr_head_location = match direction {
-            Direction::UP => Index(self.curr_head_location.0, self.curr_head_location.1 - 1),
-            Direction::DOWN => Index(self.curr_head_location.0, self.curr_head_location.1 + 1),
-            Direction::LEFT => Index(self.curr_head_location.0 - 1, self.curr_head_location.1),
-            Direction::RIGHT => Index(self.curr_head_location.0 + 1, self.curr_head_location.1),
-        };
-
-        let new_distance = self.curr_head_location.distance(&self.curr_tail_location);
-        if new_distance < 2 {
-            return;
+        let mut curr_knot_index = 0;
+        {
+            let first_knot_location = self.curr_knot_locations.get_mut(curr_knot_index).unwrap();
+            let new_location = match direction {
+                Direction::UP => Index(first_knot_location.0, first_knot_location.1 - 1),
+                Direction::DOWN => Index(first_knot_location.0, first_knot_location.1 + 1),
+                Direction::LEFT => Index(first_knot_location.0 - 1, first_knot_location.1),
+                Direction::RIGHT => Index(first_knot_location.0 + 1, first_knot_location.1),
+            };
+            first_knot_location.0 = new_location.0;
+            first_knot_location.1 = new_location.1;
         }
 
-        // otherwise, need to move the tail
-        let diff_x = isize::signum(self.curr_head_location.0 - self.curr_tail_location.0);
-        let diff_y = isize::signum(self.curr_head_location.1 - self.curr_tail_location.1);
+        // check if we now need to move the next node
+        while curr_knot_index != self.curr_knot_locations.len() - 1 {
+            let curr_knot_location = self.curr_knot_locations.get(curr_knot_index).unwrap();
+            let next_knot_location = self.curr_knot_locations.get(curr_knot_index + 1).unwrap();
+            let new_distance = curr_knot_location.distance(&next_knot_location);
+            if new_distance < 2 {
+                break;
+            }
 
-        self.curr_tail_location = Index(
-            self.curr_tail_location.0 + diff_x,
-            self.curr_tail_location.1 + diff_y,
-        );
+            // if required, find out where the next knot moves to
+            let diff_x = isize::signum(curr_knot_location.0 - next_knot_location.0);
+            let diff_y = isize::signum(curr_knot_location.1 - next_knot_location.1);
 
-        self.visited_tail_locaions
-            .insert(self.curr_tail_location.clone());
+            // fix the next location
+            {
+                let new_location_x = next_knot_location.0 + diff_x;
+                let new_location_y = next_knot_location.1 + diff_y;
+                // drop(curr_knot_location);
+                // drop(next_knot_location);
+                let knot_to_update = self
+                    .curr_knot_locations
+                    .get_mut(curr_knot_index + 1)
+                    .unwrap();
+                knot_to_update.0 = new_location_x;
+                knot_to_update.1 = new_location_y;
+            }
+
+            curr_knot_index += 1;
+        }
+        let tail_location = self.curr_knot_locations[..].last().unwrap();
+        self.visited_tail_locaions.insert(tail_location.clone());
     }
 }
 
