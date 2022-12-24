@@ -1,4 +1,4 @@
-use std::{cmp::max, fs, num, str::FromStr, string::ParseError};
+use std::{cmp::max, fs, str::FromStr, string::ParseError};
 #[derive(Debug)]
 struct Index(usize, usize);
 
@@ -137,8 +137,6 @@ impl FromStr for TreeHeightMap {
 fn main() {
     let contents = fs::read_to_string("input/day8.txt").unwrap();
     let height_map: TreeHeightMap = contents.parse().unwrap();
-    let iter = height_map.walk(&Index(0, 0), &Direction::UP);
-    dbg!(height_map.is_visible(&Index(0, 0)));
     let mut num_visible = 0usize;
     for row in 0..height_map.0.len() {
         for col in 0..height_map.0.get(0).unwrap().len() {
